@@ -13,7 +13,7 @@ While MediatR library isn't simply equal to CQRS, it does however facilitate the
 CQRS, known as Command Query Responsibility Segregation (hard, I know), is a pattern that separates the concerns of handling data (commands) from reading the data (queries) in a system.
 This separation allows for independent optimization of read and write paths, potentially improving scalability, performance, and maintainability.
 
-### Very simple diagram:
+### CQRS diagram:
 
 ![CQRS-Single-DB](https://github.com/user-attachments/assets/e9c5a753-0bb2-4db3-887c-4dae064bd30b)
 
