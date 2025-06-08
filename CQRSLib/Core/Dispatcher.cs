@@ -12,7 +12,7 @@ internal sealed class Dispatcher(IServiceProvider serviceProvider) : IDispatcher
         return handler.ExecuteAsync(command);
     }
 
-    public Task<TQueryResult> DispatchAsync<TQuery, TQueryResult>(TQuery query) where TQuery : IQuery where TQueryResult : IQueryResult
+    public Task<TQueryResult> DispatchAsync<TQuery, TQueryResult>(TQuery query) where TQuery : IQuery<TQueryResult> where TQueryResult : IQueryResult
     {
         var handler = GetHandler<TQuery, TQueryResult>(query);
         return handler.RetrieveAsync(query);
@@ -26,7 +26,7 @@ internal sealed class Dispatcher(IServiceProvider serviceProvider) : IDispatcher
     }
 
     private IQueryHandler<TQuery, TQueryResult> GetHandler<TQuery, TQueryResult>(TQuery query)
-        where TQuery : IQuery where TQueryResult : IQueryResult
+        where TQuery : IQuery<TQueryResult> where TQueryResult : IQueryResult
     {
         var handler = serviceProvider.GetRequiredService<IQueryHandler<TQuery, TQueryResult>>();
         return handler;

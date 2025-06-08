@@ -12,8 +12,6 @@ public static class ServiceProviderExtension
     {
         services.AddTransient<IDispatcher, Dispatcher>();
 
-        var handlerAssembly = Assembly.GetAssembly(typeof(ICommand));
-
         services.Scan(scan => scan
             .FromAssemblies(assemblies)
             .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<>)))

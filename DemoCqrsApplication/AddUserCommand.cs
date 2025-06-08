@@ -28,7 +28,7 @@ public class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand>
     }
 }
 
-public class GetUserQuery : IQuery;
+public class GetUserQuery : IQuery<GetUserQueryResult>;
 
 public class GetUserQueryResult : IQueryResult;
 
@@ -41,7 +41,7 @@ public class GetUserQueryHandler : IQueryHandler<GetUserQuery, GetUserQueryResul
     }
 }
 
-public class GetUsersQuery : IQuery;
+public class GetUsersQuery : IQuery<GetUsersQueryResult>;
 
 public class GetUsersQueryResult : IQueryResult;
 
