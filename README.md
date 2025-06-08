@@ -2,23 +2,22 @@
 
 ## Why are we doing this?
 
-I don't think that it's still shocking news by now that [AutoMapper and MediatR are going commercial](https://www.jimmybogard.com/automapper-and-mediatr-going-commercial/). 
+It’s no longer shocking news that [AutoMapper and MediatR are going commercial](https://www.jimmybogard.com/automapper-and-mediatr-going-commercial/). 
+Many developers prefer writing their own mappings rather than relying on AutoMapper.  
 
-A lot of developers prefers to do their own mappings instead of using Auto Mapper, 
-so we won't be focusing on this.
-While MediatR library isn't simply equal to CQRS, it does however facilitate the implementation of CQRS pattern. So let's spend our energy here!
+While the MediatR library isn’t a full-blown CQRS implementation, it does facilitate applying the CQRS pattern. So instead of focusing on mapping, let’s concentrate on CQRS!
 
-## First tings first, what is CQRS?
+## First Things First, What is CQRS?
 
-CQRS, known as Command Query Responsibility Segregation (hard, I know), is a pattern that separates the concerns of handling data (commands) from reading the data (queries) in a system.
-This separation allows for independent optimization of read and write paths, potentially improving scalability, performance, and maintainability.
+CQRS, which stands for Command Query Responsibility Segregation, is a design pattern that divides the system’s operations into two distinct parts: one for modifying data (commands) and another for reading data (queries). This separation enables independent optimization of the read and write paths, potentially enhancing scalability, performance, and maintainability.
 
 ### CQRS diagram:
 
 ![CQRS-Single-DB](https://github.com/user-attachments/assets/e9c5a753-0bb2-4db3-887c-4dae064bd30b)
 
-The above diagram shows the simple approach for CQRS and how it resides in your API. If you need to create, update or delete your data, you'll be using your command model inside the API, however, if you're retrieving data from your application, you're most likely going to be using the query model inside the API.
-This diagram demonstrates how you could start by using CQRS, however, to actually separate the concerns, the following diagram illustrates the full approach of using it, with two databases, one for writing and one for reading with eventual consistency between the write and read databases:
+The diagram above illustrates a basic CQRS approach within your API. When creating, updating, or deleting data, the command model is used; when retrieving data, the query model comes into play.  
+
+In the following diagram, we further separate concerns by employing two databases—one for writes and one for reads—with eventual consistency maintained between them.
 
 ![CQRS-Two-DB](https://github.com/user-attachments/assets/f056ff24-55bd-4b4a-b018-6d2e65952a1a)
 
@@ -111,12 +110,12 @@ As you can see, the dispatcher main function will be to retrieve from our inject
 
 ### Dependency Injection
 
-Finally, since we talked about injected services, the remaining question would be: _How am I going to inject all those handlers? Should I do it for each one alone?_ The asnwer is no. The library will take care of this with the help of [Scrutor library](https://github.com/khellang/Scrutor).
+Finally, since we talked about injected services, the remaining question would be: _How am I going to inject all those handlers? Should I do it for each one alone?_ The answer is no. The library will take care of this with the help of [Scrutor library](https://github.com/khellang/Scrutor).
 
 Let's go ahead and see how:
 
 ```csharp
-public static class ServiceCollectionExtension
+public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddCQRSLibrary(this IServiceCollection services, params Assembly[] assemblies)
     {
@@ -232,8 +231,8 @@ public class UserController(IDispatcher dispatcher) : ControllerBase
 
 ## Final Thoughts
 
-This minimal library doesn't cover everything that the `MediatR` library offers, that's for sure. However, it's a small library that you could use as a starting point to build your own bigger library.
-
-One of the parts that we didn't tackle at all, is Event Sourcing. CQRS is often combined with event sourcing, where commands sends events that can be used to update the read model asynchronously. 
+This minimal CQRS library is just a starting point—it demonstrates the core concepts behind the separation of concerns in command and query handling, but it doesn’t cover all the advanced features offered by mature libraries like MediatR. For instance, we haven’t addressed event sourcing, which is often paired with CQRS to maintain an audit log or support asynchronous updates of the read model.
+I encourage you to explore the code, experiment with it, and enhance it to suit your real-world projects. Future posts might dive into topics like error handling, pipeline behaviors, and integrating event sourcing. Your feedback is invaluable, so feel free to share your thoughts or improvements on the repository.
+Happy coding!
 
 All the code above could be found [here](https://github.com/tiger4589/cqrs-lib).
