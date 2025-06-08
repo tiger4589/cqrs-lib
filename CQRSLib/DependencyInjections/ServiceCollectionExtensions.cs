@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace CQRSLib.DependencyInjections;
 
-public static class ServiceCollectionExtension
+public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddCQRSLibrary(this IServiceCollection services, params Assembly[] assemblies)
     {
