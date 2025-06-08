@@ -1,6 +1,3 @@
 ﻿namespace CQRSLib.Queries;
 
-public interface IQueryResult
-{
-    
-}
+public interface IQueryResult;

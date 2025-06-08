@@ -10,4 +10,10 @@
     <ProjectReference Include="..\CQRSLib\CQRSLib.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="GetUser\" />
+    <Folder Include="AddUser\" />
+    <Folder Include="DeleteUser\" />
+  </ItemGroup>
+
 </Project>

@@ -1,6 +1,0 @@
-@DemoCqrs_HostAddress = http://localhost:5279
-
-GET {{DemoCqrs_HostAddress}}/user/
-Accept: application/json
-
-###
