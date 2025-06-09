@@ -2,10 +2,10 @@
 
 ## Why are we doing this?
 
-It’s no longer shocking news that [AutoMapper and MediatR are going commercial](https://www.jimmybogard.com/automapper-and-mediatr-going-commercial/). 
-Many developers prefer writing their own mappings rather than relying on AutoMapper.  
+It’s no longer shocking news that [AutoMapper and MediatR are going commercial](https://www.jimmybogard.com/automapper-and-mediatr-going-commercial/).  
 
-While the MediatR library isn’t a full-blown CQRS implementation, it does facilitate applying the CQRS pattern. So instead of focusing on mapping, let’s concentrate on CQRS!
+Many developers prefer writing their own mappings rather than relying on AutoMapper, and while the MediatR library isn’t a full-blown CQRS implementation, it does facilitate applying the CQRS pattern.  
+Therefore, instead of focusing on mapping, let’s concentrate on CQRS!
 
 ## First Things First, What is CQRS?
 
