@@ -1,11 +1,11 @@
-# Let's write our own (minimal) CQRS Library!
+# Let's write our own (minimal) CQRS Companion Library!
 
 ## Why are we doing this?
 
 It’s no longer shocking news that [AutoMapper and MediatR are going commercial](https://www.jimmybogard.com/automapper-and-mediatr-going-commercial/). 
 Many developers prefer writing their own mappings rather than relying on AutoMapper.  
 
-While the MediatR library isn’t a full-blown CQRS implementation, it does facilitate applying the CQRS pattern. So instead of focusing on mapping, let’s concentrate on CQRS!
+While the MediatR library isn’t a full-blown CQRS framework, it does facilitate the application of the CQRS pattern. So instead of focusing on mapping, let’s concentrate on CQRS, and write our own companion library that would help in the long run to completely implement actual CQRS.
 
 ## First Things First, What is CQRS?
 
@@ -21,7 +21,7 @@ In the following diagram, we further separate concerns by employing two database
 
 ![CQRS-Two-DB](https://github.com/user-attachments/assets/f056ff24-55bd-4b4a-b018-6d2e65952a1a)
 
-This was a quick introduction and explanation for CQRS, maybe we could dive more in depth in a later blog post, but our goal for today is to write our own library, and again, a minimal one, that we could use in our API to implement CQRS. Let's start then!
+This was a quick introduction and explanation for CQRS, maybe we could dive more in depth in a later blog post, but our goal for today is to write our own library, and again, a minimal one, that we could use in our API to help us implement CQRS. Let's start then!
 
 ## Our Library!
 
@@ -110,7 +110,7 @@ As you can see, the dispatcher main function will be to retrieve from our inject
 
 ### Dependency Injection
 
-Finally, since we talked about injected services, the remaining question would be: _How am I going to inject all those handlers? Should I do it for each one alone?_ The answer is no. The library will take care of this with the help of [Scrutor library](https://github.com/khellang/Scrutor).
+Finally, since we talked about injected services, the remaining question would be: _How am I going to inject all those handlers? Should I do it for each one alone?_ The answer is no. Our library will take care of this with the help of [Scrutor](https://github.com/khellang/Scrutor).
 
 Let's go ahead and see how:
 
@@ -196,7 +196,7 @@ First things first, let's inject everything using the library extension:
 builder.Services.AddCQRSLibrary(Assembly.GetAssembly(typeof(GetUserQuery))!);
 ```
 
-Since all of our code resides in one simple project, we can simply call our extension method with one assembly, using the `Assembly.GetAssembly` method.
+Since all of our code resides in one project, we can simply call our extension method with that assembly, using the `Assembly.GetAssembly` method.
 
 Finally, our `UserController` can now inject the `IDispatcher` and start calling different commands and queries:
 
@@ -231,8 +231,10 @@ public class UserController(IDispatcher dispatcher) : ControllerBase
 
 ## Final Thoughts
 
-This minimal CQRS library is just a starting point—it demonstrates the core concepts behind the separation of concerns in command and query handling, but it doesn’t cover all the advanced features offered by mature libraries like MediatR. For instance, we haven’t addressed event sourcing, which is often paired with CQRS to maintain an audit log or support asynchronous updates of the read model.
+This minimal CQRS Companion library is just a starting point. It demonstrates the core concepts behind the separation of concerns in command and query handling, but it doesn’t cover all the advanced features offered by mature libraries like `MediatR`. For instance, we haven’t addressed event sourcing, which is often paired with CQRS to maintain an audit log or support asynchronous updates of the read model. On the other hand, it also doesn't implement pipeline behavior - a quick hint, this can be easily achievable with the [decorator pattern](https://www.allphi.eu/en/blog/decorator-pattern) that we have previously explored. We can decorate our `IDispatcher` and allow users to include any additional behavior they might require.
+
 I encourage you to explore the code, experiment with it, and enhance it to suit your real-world projects. Future posts might dive into topics like error handling, pipeline behaviors, and integrating event sourcing. Your feedback is invaluable, so feel free to share your thoughts or improvements on the repository.
+
 Happy coding!
 
 All the code above could be found [here](https://github.com/tiger4589/cqrs-lib).
