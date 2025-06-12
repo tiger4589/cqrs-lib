@@ -4,7 +4,7 @@
 
 It’s no longer shocking news that [AutoMapper and MediatR are going commercial](https://www.jimmybogard.com/automapper-and-mediatr-going-commercial/).  
 
-Many developers prefer writing their own mappings rather than relying on AutoMapper, and While the MediatR library isn’t a full-blown CQRS framework, it does facilitate the application of the CQRS pattern.  
+Many developers prefer writing their own mappings rather than relying on AutoMapper, and while the `MediatR` library isn’t a full-blown CQRS framework, it does facilitate the application of the CQRS pattern.  
 Therefor, instead of focusing on mapping, let’s concentrate on CQRS, and write our own companion library that would help in the long run to completely implement actual CQRS.
 
 ## First Things First, What is CQRS?
@@ -17,11 +17,11 @@ CQRS, which stands for Command Query Responsibility Segregation, is a design pat
 
 The diagram above illustrates a basic CQRS approach within your API. When creating, updating, or deleting data, the command model is used; when retrieving data, the query model comes into play.  
 
-In the following diagram, we further separate concerns by employing two databases—one for writes and one for reads—with eventual consistency maintained between them.
+In the following diagram, we further separate concerns by employing two databases — one for writes and one for reads — with eventual consistency maintained between them.
 
 ![CQRS-Two-DB](https://github.com/user-attachments/assets/f056ff24-55bd-4b4a-b018-6d2e65952a1a)
 
-This was a quick introduction and explanation for CQRS, maybe we could dive more in depth in a later blog post, but our goal for today is to write our own library, and again, a minimal one, that we could use in our API to help us implement CQRS. Let's start then!
+This was a quick introduction and explanation for CQRS, maybe we could dive more in depth in a later blog post, but our goal for today is to write our own library, and again, a minimal one, that we could use in our code to help us implement CQRS, or at least, part of it. Let's start then!
 
 ## Our Library!
 
@@ -117,7 +117,7 @@ Let's go ahead and see how:
 ```csharp
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddCQRSLibrary(this IServiceCollection services, params Assembly[] assemblies)
+    public static IServiceCollection AddCommandQueryLibrary(this IServiceCollection services, params Assembly[] assemblies)
     {
         services.AddTransient<IDispatcher, Dispatcher>();
 
@@ -193,7 +193,7 @@ Now that our library is ready, and our application layer is ready, let's see how
 First things first, let's inject everything using the library extension:
 
 ```csharp
-builder.Services.AddCQRSLibrary(Assembly.GetAssembly(typeof(GetUserQuery))!);
+builder.Services.AddCommandQueryLibrary(Assembly.GetAssembly(typeof(GetUserQuery))!);
 ```
 
 Since all of our code resides in one project, we can simply call our extension method with that assembly, using the `Assembly.GetAssembly` method.
