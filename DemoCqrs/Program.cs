@@ -11,7 +11,7 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddCQRSLibrary(Assembly.GetAssembly(typeof(GetUserQuery))!);
+builder.Services.AddCommandQueryLibrary(Assembly.GetAssembly(typeof(GetUserQuery))!);
 
 var app = builder.Build();
 
