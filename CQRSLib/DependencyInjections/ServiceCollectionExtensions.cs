@@ -8,7 +8,7 @@ namespace CQRSLib.DependencyInjections;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddCQRSLibrary(this IServiceCollection services, params Assembly[] assemblies)
+    public static IServiceCollection AddCommandQueryLibrary(this IServiceCollection services, params Assembly[] assemblies)
     {
         services.AddTransient<IDispatcher, Dispatcher>();
 
