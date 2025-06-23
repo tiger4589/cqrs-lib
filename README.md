@@ -27,18 +27,24 @@ This was a quick introduction and explanation for CQRS, maybe we could dive more
 
 ### Commands
 
-First we need to be able to define a class as a command, so let's go ahead and write our `ICommand` interface:
+First we need to be able to define a class as a command, so let's go ahead and write our `ICommand` and `ICommand<TCommandResult>` interfaces:
 
 ```csharp
 public interface ICommand;
+public interface ICommand<TCommandResult>;
 ```
 
-Second, we'll need to define a class as a command handler, that our system would know which command it will treat, so let's go ahead and write an `ICommandHandler` interface:
+Second, we'll need to define a class as a command handler, that our system would know which command it will treat, so let's go ahead and write an `ICommandHandler` and an `ICommandHandler<TCommandResult>` interfaces:
 
 ```csharp
 public interface ICommandHandler<in TCommand> where TCommand : ICommand
 {
     Task ExecuteAsync(TCommand command);
+}
+
+public interface ICommandHandler<in TCommand, TCommandResult> where TCommand : ICommand<TCommandResult>
+{
+    Task<TCommandResult> ExecuteAsync(TCommand command);
 }
 ```
 
@@ -71,7 +77,8 @@ We're going to achieve this by implementing a dispatcher class that basically ha
 public interface IDispatcher
 {
     Task DispatchAsync<TCommand>(TCommand command) where TCommand : ICommand;
-    Task<TQueryResult> DispatchAsync<TQuery, TQueryResult>(TQuery query) where TQuery : IQuery<TQueryResult> where TQueryResult : IQueryResult;
+    Task<TCommandResult> DispatchAsync<TCommand, TCommandResult>(TCommand command) where TCommand : ICommand<TCommandResult>;
+    Task<TQueryResult> RetrieveAsync<TQuery, TQueryResult>(TQuery query) where TQuery : IQuery<TQueryResult> where TQueryResult : IQueryResult;
 }
 ```
 
@@ -84,9 +91,15 @@ internal sealed class Dispatcher(IServiceProvider serviceProvider) : IDispatcher
         return handler.ExecuteAsync(command);
     }
 
-    public Task<TQueryResult> DispatchAsync<TQuery, TQueryResult>(TQuery query) where TQuery : IQuery<TQueryResult> where TQueryResult : IQueryResult
+    public Task<TCommandResult> DispatchAsync<TCommand, TCommandResult>(TCommand command) where TCommand : ICommand<TCommandResult>
     {
-        var handler = GetHandler<TQuery, TQueryResult>();
+        var handler = GetHandler<TCommand, TCommandResult>();
+        return handler.ExecuteAsync(command);
+    }
+
+    public Task<TQueryResult> RetrieveAsync<TQuery, TQueryResult>(TQuery query) where TQuery : IQuery<TQueryResult> where TQueryResult : IQueryResult
+    {
+        var handler = GetQueryHandler<TQuery, TQueryResult>();
         return handler.RetrieveAsync(query);
     }
 
@@ -97,7 +110,14 @@ internal sealed class Dispatcher(IServiceProvider serviceProvider) : IDispatcher
         return handler;
     }
 
-    private IQueryHandler<TQuery, TQueryResult> GetHandler<TQuery, TQueryResult>()
+    private ICommandHandler<TCommand, TCommandResult> GetHandler<TCommand, TCommandResult>()
+        where TCommand : ICommand<TCommandResult>
+    {
+        var handler = serviceProvider.GetRequiredService<ICommandHandler<TCommand, TCommandResult>>();
+        return handler;
+    }
+
+    private IQueryHandler<TQuery, TQueryResult> GetQueryHandler<TQuery, TQueryResult>()
         where TQuery : IQuery<TQueryResult> where TQueryResult : IQueryResult
     {
         var handler = serviceProvider.GetRequiredService<IQueryHandler<TQuery, TQueryResult>>();
@@ -106,7 +126,7 @@ internal sealed class Dispatcher(IServiceProvider serviceProvider) : IDispatcher
 }
 ```
 
-As you can see, the dispatcher main function will be to retrieve from our injected services the specified handlers, and either execute a command, or execute a query and retrieve the data.
+As you can see, the dispatcher main function will be to retrieve from our injected services the specified handlers, and either execute a command, a command with a result, or execute a query and retrieve the data.
 
 ### Dependency Injection
 
@@ -124,6 +144,12 @@ public static class ServiceCollectionExtensions
         services.Scan(scan => scan
             .FromAssemblies(assemblies)
             .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<>)))
+            .AsImplementedInterfaces()
+            .WithTransientLifetime());
+
+        services.Scan(scan => scan
+            .FromAssemblies(assemblies)
+            .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<,>)))
             .AsImplementedInterfaces()
             .WithTransientLifetime());
 
@@ -153,14 +179,15 @@ First of all, let's implement our different commands and queries.
 First command will be used to add a new user:
 
 ```csharp
-public sealed record AddUserCommand : ICommand;
+public sealed record AddUserCommand : ICommand<Guid>;
 
-public class AddUserCommandHandler : ICommandHandler<AddUserCommand>
+public class AddUserCommandHandler : ICommandHandler<AddUserCommand, Guid>
 {
-    public Task ExecuteAsync(AddUserCommand command)
+    public Task<Guid> ExecuteAsync(AddUserCommand command)
     {
-        Console.WriteLine("Added User");
-        return Task.CompletedTask;
+        var guid = Guid.NewGuid();
+        Console.WriteLine($"Added User {guid}");
+        return Task.FromResult(guid);
     }
 }
 ```
@@ -209,15 +236,15 @@ public class UserController(IDispatcher dispatcher) : ControllerBase
     public async Task<IActionResult> Get(Guid id)
     {
         GetUserQuery userQuery = new(id);
-        var user = await dispatcher.DispatchAsync<GetUserQuery, GetUserQueryResult>(userQuery);
+        var user = await dispatcher.RetrieveAsync<GetUserQuery, GetUserQueryResult>(userQuery);
         return Ok(user);
     }
 
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] AddUserCommand command)
     {
-        await dispatcher.DispatchAsync(command);
-        return Ok();
+        var result = await dispatcher.DispatchAsync<AddUserCommand, Guid>(command);
+        return Ok(result);
     }
 
     [HttpDelete]

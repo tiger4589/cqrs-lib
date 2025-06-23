@@ -2,11 +2,12 @@
 
 namespace DemoCqrsApplication.AddUser;
 
-public class AddUserCommandHandler : ICommandHandler<AddUserCommand>
+public class AddUserCommandHandler : ICommandHandler<AddUserCommand, Guid>
 {
-    public Task ExecuteAsync(AddUserCommand command)
+    public Task<Guid> ExecuteAsync(AddUserCommand command)
     {
-        Console.WriteLine("Added User");
-        return Task.CompletedTask;
+        var guid = Guid.NewGuid();
+        Console.WriteLine($"Added User {guid}");
+        return Task.FromResult(guid);
     }
 }

@@ -20,6 +20,12 @@ public static class ServiceCollectionExtensions
 
         services.Scan(scan => scan
             .FromAssemblies(assemblies)
+            .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<,>)))
+            .AsImplementedInterfaces()
+            .WithTransientLifetime());
+
+        services.Scan(scan => scan
+            .FromAssemblies(assemblies)
             .AddClasses(classes => classes.AssignableTo(typeof(IQueryHandler<,>)))
             .AsImplementedInterfaces()
             .WithTransientLifetime());
