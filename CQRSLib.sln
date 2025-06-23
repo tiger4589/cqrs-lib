@@ -3,11 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQRSLib", ".\CQRSLib\CQRSLib.csproj", "{4C67B47C-30F3-4214-87A9-A7A24385CCB5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQRSLib", "CQRSLib\CQRSLib.csproj", "{4C67B47C-30F3-4214-87A9-A7A24385CCB5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemoCqrs", ".\DemoCqrs\DemoCqrs.csproj", "{56C43732-73AB-42F9-B4DF-D6B99D0FD67F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemoCqrs", "DemoCqrs\DemoCqrs.csproj", "{56C43732-73AB-42F9-B4DF-D6B99D0FD67F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemoCqrsApplication", ".\DemoCqrsApplication\DemoCqrsApplication.csproj", "{8A9A68B9-0EA2-4AD2-AA47-D98E269EFCE5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemoCqrsApplication", "DemoCqrsApplication\DemoCqrsApplication.csproj", "{8A9A68B9-0EA2-4AD2-AA47-D98E269EFCE5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
