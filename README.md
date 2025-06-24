@@ -73,7 +73,7 @@ public interface IQueryHandler<in TQuery, TQueryResult> where TQuery : IQuery<TQ
 
 Now that we have defined our interfaces that can be used to create commands and queries, we need a way to be able to call their handlers without having to explicitly injecting them in each of our services.
 
-We're going to achieve this by implementing a dispatcher class that basically have two overloaded methods, one to call a command, and one to call a query and retrieve the data. So let's go ahead and do that:
+We're going to achieve this by implementing a dispatcher class that basically have two overloaded methods for command calls, one to call a command, and one to call a command that returns the result, and another method to call a query and retrieve the data. So let's go ahead and do that:
 
 ```csharp
 public interface IDispatcher
