@@ -229,7 +229,7 @@ Since all of our code resides in one project, we can simply call our extension m
 
 Finally, our `UserController` can now inject the `IDispatcher` and start calling different commands and queries:
 
-```
+```csharp
 [Route("api/[controller]")]
 [ApiController]
 public class UserController(IDispatcher dispatcher) : ControllerBase
