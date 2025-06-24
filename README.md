@@ -34,6 +34,8 @@ public interface ICommand;
 public interface ICommand<TCommandResult>;
 ```
 
+Note that `TCommandResult` is supposed to be used to return the result of your command, and not used to retrieve data, that would be an anti-pattern.
+
 Second, we'll need to define a class as a command handler, that our system would know which command it will treat, so let's go ahead and write an `ICommandHandler` and an `ICommandHandler<TCommandResult>` interfaces:
 
 ```csharp
