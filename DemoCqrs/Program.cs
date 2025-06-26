@@ -1,6 +1,5 @@
 using System.Reflection;
 using CQRSLib.DependencyInjections;
-using DemoCqrsApplication;
 using DemoCqrsApplication.GetUser;
 
 var builder = WebApplication.CreateBuilder(args);

@@ -73,14 +73,14 @@ public interface IQueryHandler<in TQuery, TQueryResult> where TQuery : IQuery<TQ
 
 Now that we have defined our interfaces that can be used to create commands and queries, we need a way to be able to call their handlers without having to explicitly injecting them in each of our services.
 
-We're going to achieve this by implementing a dispatcher class that basically have two overloaded methods for command calls, one to call a command, and one to call a command that returns the result, and another method to call a query and retrieve the data. So let's go ahead and do that:
+We're going to achieve this by implementing a dispatcher class that basically have three overloaded methods for command calls, one to call a command, and one to call a command that returns the result, and a third one to call a query and retrieve the data. So let's go ahead and do that:
 
 ```csharp
 public interface IDispatcher
 {
     Task DispatchAsync<TCommand>(TCommand command) where TCommand : ICommand;
-    Task<TCommandResult> DispatchAsync<TCommand, TCommandResult>(TCommand command) where TCommand : ICommand<TCommandResult>;
-    Task<TQueryResult> RetrieveAsync<TQuery, TQueryResult>(TQuery query) where TQuery : IQuery<TQueryResult> where TQueryResult : IQueryResult;
+    Task<TCommandResult> DispatchAsync<TCommandResult>(ICommand<TCommandResult> command);
+    Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query) where TQueryResult : IQueryResult;
 }
 ```
 
@@ -93,16 +93,16 @@ internal sealed class Dispatcher(IServiceProvider serviceProvider) : IDispatcher
         return handler.ExecuteAsync(command);
     }
 
-    public Task<TCommandResult> DispatchAsync<TCommand, TCommandResult>(TCommand command) where TCommand : ICommand<TCommandResult>
+    public Task<TCommandResult> DispatchAsync<TCommandResult>(ICommand<TCommandResult> command)
     {
-        var handler = GetHandler<TCommand, TCommandResult>();
-        return handler.ExecuteAsync(command);
+        var handler = GetHandler(command);
+        return handler.ExecuteAsync((dynamic)command);
     }
 
-    public Task<TQueryResult> RetrieveAsync<TQuery, TQueryResult>(TQuery query) where TQuery : IQuery<TQueryResult> where TQueryResult : IQueryResult
+    public Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query) where TQueryResult : IQueryResult
     {
-        var handler = GetQueryHandler<TQuery, TQueryResult>();
-        return handler.RetrieveAsync(query);
+        var handler = GetQueryHandler(query);
+        return handler.RetrieveAsync((dynamic)query);
     }
 
     private ICommandHandler<TCommand> GetHandler<TCommand>()
@@ -112,23 +112,34 @@ internal sealed class Dispatcher(IServiceProvider serviceProvider) : IDispatcher
         return handler;
     }
 
-    private ICommandHandler<TCommand, TCommandResult> GetHandler<TCommand, TCommandResult>()
-        where TCommand : ICommand<TCommandResult>
+    private dynamic GetHandler<TCommandResult>(ICommand<TCommandResult> command)
     {
-        var handler = serviceProvider.GetRequiredService<ICommandHandler<TCommand, TCommandResult>>();
+        var commandType = command.GetType();
+        var handlerType = typeof(ICommandHandler<,>)
+            .MakeGenericType(commandType,
+                typeof(TCommandResult));
+
+        dynamic handler = serviceProvider.GetRequiredService(handlerType);
         return handler;
     }
 
-    private IQueryHandler<TQuery, TQueryResult> GetQueryHandler<TQuery, TQueryResult>()
-        where TQuery : IQuery<TQueryResult> where TQueryResult : IQueryResult
+    private dynamic GetQueryHandler<TQueryResult>(IQuery<TQueryResult> query) where TQueryResult : IQueryResult
     {
-        var handler = serviceProvider.GetRequiredService<IQueryHandler<TQuery, TQueryResult>>();
+        var queryType = query.GetType();
+        var handlerType = typeof(IQueryHandler<,>)
+            .MakeGenericType(queryType,
+                typeof(TQueryResult));
+
+        dynamic handler = serviceProvider.GetRequiredService(handlerType);
         return handler;
     }
 }
 ```
 
 As you can see, the dispatcher main function will be to retrieve from our injected services the specified handlers, and either execute a command, a command with a result, or execute a query and retrieve the data.
+
+Side note: the use of `dynamic` is to avoid explicitly using the reflection and use the `method.Invoke()`.
+And when we use it in the `ExecuteAsync((dynamic)command)` as well as `RetrieveAsync((dynamic)query)` we're letting the `DLR` (Dynamic Language Runtime) pick the correct overload at runtime.
 
 ### Dependency Injection
 
@@ -238,14 +249,14 @@ public class UserController(IDispatcher dispatcher) : ControllerBase
     public async Task<IActionResult> Get(Guid id)
     {
         GetUserQuery userQuery = new(id);
-        var user = await dispatcher.RetrieveAsync<GetUserQuery, GetUserQueryResult>(userQuery);
+        var user = await dispatcher.DispatchAsync(userQuery);
         return Ok(user);
     }
 
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] AddUserCommand command)
     {
-        var result = await dispatcher.DispatchAsync<AddUserCommand, Guid>(command);
+        var result = await dispatcher.DispatchAsync(command);
         return Ok(result);
     }
 

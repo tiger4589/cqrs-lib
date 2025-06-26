@@ -12,16 +12,16 @@ internal sealed class Dispatcher(IServiceProvider serviceProvider) : IDispatcher
         return handler.ExecuteAsync(command);
     }
 
-    public Task<TCommandResult> DispatchAsync<TCommand, TCommandResult>(TCommand command) where TCommand : ICommand<TCommandResult>
+    public Task<TCommandResult> DispatchAsync<TCommandResult>(ICommand<TCommandResult> command)
     {
-        var handler = GetHandler<TCommand, TCommandResult>();
-        return handler.ExecuteAsync(command);
+        var handler = GetHandler(command);
+        return handler.ExecuteAsync((dynamic)command);
     }
 
-    public Task<TQueryResult> RetrieveAsync<TQuery, TQueryResult>(TQuery query) where TQuery : IQuery<TQueryResult> where TQueryResult : IQueryResult
+    public Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query) where TQueryResult : IQueryResult
     {
-        var handler = GetQueryHandler<TQuery, TQueryResult>();
-        return handler.RetrieveAsync(query);
+        var handler = GetQueryHandler(query);
+        return handler.RetrieveAsync((dynamic)query);
     }
 
     private ICommandHandler<TCommand> GetHandler<TCommand>()
@@ -31,17 +31,25 @@ internal sealed class Dispatcher(IServiceProvider serviceProvider) : IDispatcher
         return handler;
     }
 
-    private ICommandHandler<TCommand, TCommandResult> GetHandler<TCommand, TCommandResult>()
-        where TCommand : ICommand<TCommandResult>
+    private dynamic GetHandler<TCommandResult>(ICommand<TCommandResult> command)
     {
-        var handler = serviceProvider.GetRequiredService<ICommandHandler<TCommand, TCommandResult>>();
+        var commandType = command.GetType();
+        var handlerType = typeof(ICommandHandler<,>)
+            .MakeGenericType(commandType,
+                typeof(TCommandResult));
+
+        dynamic handler = serviceProvider.GetRequiredService(handlerType);
         return handler;
     }
 
-    private IQueryHandler<TQuery, TQueryResult> GetQueryHandler<TQuery, TQueryResult>()
-        where TQuery : IQuery<TQueryResult> where TQueryResult : IQueryResult
+    private dynamic GetQueryHandler<TQueryResult>(IQuery<TQueryResult> query) where TQueryResult : IQueryResult
     {
-        var handler = serviceProvider.GetRequiredService<IQueryHandler<TQuery, TQueryResult>>();
+        var queryType = query.GetType();
+        var handlerType = typeof(IQueryHandler<,>)
+            .MakeGenericType(queryType,
+                typeof(TQueryResult));
+
+        dynamic handler = serviceProvider.GetRequiredService(handlerType);
         return handler;
     }
 }

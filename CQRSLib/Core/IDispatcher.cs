@@ -6,6 +6,6 @@ namespace CQRSLib.Core;
 public interface IDispatcher
 {
     Task DispatchAsync<TCommand>(TCommand command) where TCommand : ICommand;
-    Task<TCommandResult> DispatchAsync<TCommand, TCommandResult>(TCommand command) where TCommand : ICommand<TCommandResult>;
-    Task<TQueryResult> RetrieveAsync<TQuery, TQueryResult>(TQuery query) where TQuery : IQuery<TQueryResult> where TQueryResult : IQueryResult;
+    Task<TCommandResult> DispatchAsync<TCommandResult>(ICommand<TCommandResult> command);
+    Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query) where TQueryResult : IQueryResult;
 }

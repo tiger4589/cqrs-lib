@@ -14,14 +14,14 @@ public class UserController(IDispatcher dispatcher) : ControllerBase
     public async Task<IActionResult> Get(Guid id)
     {
         GetUserQuery userQuery = new(id);
-        var user = await dispatcher.RetrieveAsync<GetUserQuery, GetUserQueryResult>(userQuery);
+        var user = await dispatcher.DispatchAsync(userQuery);
         return Ok(user);
     }
 
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] AddUserCommand command)
     {
-        var result = await dispatcher.DispatchAsync<AddUserCommand, Guid>(command);
+        var result = await dispatcher.DispatchAsync(command);
         return Ok(result);
     }
 
